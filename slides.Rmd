@@ -93,12 +93,17 @@ spdf %>%
   theme_excel()
 ```
 
-## What information does NEON AOP add to existing knowledge of elevation?
+## What information does NEON AOP add to existing our knowledge of elevation?
 
-Second question: How does the AOP-based DTM compare to the National Elevation Dataset (1/3 arc second resolution)?
+Specifically...how does the AOP-based DTM compare to the National Elevation Dataset (1/3 arc second resolution)?
 
 ## Approach: 
 
 1. Regress NEON elevations on NED elevations. 
 
 2. Summarize bias as the mean of the residuals for each NEON DTM tile.
+
+
+## Comparison with coarse data
+![](figs/grsm_dem_usgs_utm.jpeg)
+
