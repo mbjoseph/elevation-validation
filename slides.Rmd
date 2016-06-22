@@ -9,8 +9,6 @@ output: beamer_presentation
 
 How do ground truthed elevations compare to L3 DEMs?
 
-![](https://upload.wikimedia.org/wikipedia/commons/7/78/Lecontefromsb1.jpg)
-
 ## Approach
 
 1. Find out which of the $\approx$ 500 DTMs contain ground truth points
@@ -109,6 +107,20 @@ Specifically...how does the AOP-based DTM compare to the National Elevation Data
 ```{r}
 ned <- raster('data/GRSM_DEM_USGS_UTM.tif')
 plot(ned, main = 'National Elevation Dataset')
+```
+
+## Linear regression approach (simulated)
+
+```{r, fig.width = 6, fig.height = 5, echo = FALSE}
+n <- 100
+xvals <- rnorm(n)
+xvals <- rep(xvals, 10)
+yvals <- .1 + .9 * xvals + rnorm(length(xvals))
+plot(xvals, yvals, 
+     xlab = 'NED elevation', 
+     ylab = 'NEON elevation')
+abline(0, 1, col = 2, lwd = 3)
+abline(lm(yvals ~ xvals), col = 3, lwd = 3)
 ```
 
 ## Subsetting DTMs (for time)
