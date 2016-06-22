@@ -106,11 +106,6 @@ Specifically...how does the AOP-based DTM compare to the National Elevation Data
 
 ## Comparison with coarse data
 
-![](figs/grsm_dem_usgs_utm.jpeg)
-
-
-## Comparing NEON DTM to NED
-
 ```{r}
 ned <- raster('data/GRSM_DEM_USGS_UTM.tif')
 plot(ned, main = 'National Elevation Dataset')
@@ -122,29 +117,6 @@ plot(ned, main = 'National Elevation Dataset')
 n_to_use <- 50
 keep <- sample(length(full_dtm_paths), size = n_to_use)
 full_dtm_paths <- full_dtm_paths[keep]
-```
-
-## Making comparisons
-
-```{r, echo = FALSE}
-r <- raster(full_dtm_paths[1])
-pts <- rasterToPoints(r, spatial = TRUE)
-ned_vals <- extract(ned, pts, sp = TRUE)
-model <- lm(ned_vals@data[, 1] ~ ned_vals@data[, 2])
-smoothScatter(ned_vals$GRSM_DEM_USGS_UTM, 
-     ned_vals$X2015_GRSM_1_262000_3944000_DTM, 
-     nrpoints = 0,
-     col = alpha(1, .3), 
-     xlab = 'NED elevation', 
-     ylab = 'NEON elevation')
-abline(model, lty = 1, lwd = 2, col = 3)
-abline(0, 1, lwd = 2, lty = 2, col = 2)
-legend('topleft', 
-       lty = c(2, 1), 
-       lwd = 2, 
-       col = 2:3, 
-       legend = c('1-1 line', 'linear model'), 
-       bty = 'n')
 ```
 
 ## Distribution of bias
@@ -169,5 +141,11 @@ hist(res$slope, breaks = br)
 ```{r}
 hist(res$residual_sd, breaks = br)
 ```
+
+## Pairs plots
+
+```{r}
+pairs(res)
+````
 
 ## Questions
