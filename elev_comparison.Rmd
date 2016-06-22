@@ -45,13 +45,32 @@ plot(dem_usgs)
 plot(grsm_boundary, col=2, add=T)
 ```
 
-## Mask USGS DEM by NEON site extent
+## Crop DEM by site boundary and then reproject to CRS of NEON LiDAR data
 
 ```{r mask-dem}
+# reproject site boundary to same CRS as USGS DEM
+grsm_boundary_grs80 <- spTransform(grsm_boundary, CRS(projection(dem_usgs)))
 
+# crop USGS DEM by site boundary
+grsm_dem_usgs <- crop(dem_usgs, extent(grsm_boundary_grs80))
 
+newproj <- projection(raster("/media/look/AOP-NEON1-4/D07/GRSM/2015/GRSM_L3/GRSM_Lidar/DTM/2015_GRSM_1_257000_3951000_DTM.tif"))
 
+# reproject clipped USGS DEM to same CRS as NEON LiDAR data
+grsm_dem_usgs_utm <- projectRaster(grsm_dem_usgs, crs=newproj)
+
+plot(grsm_dem_usgs_utm)
 ```
 
+## Export processed USGS DEM for GRSM site
+
+```{r dem-geotiff}
+
+writeRaster(grsm_dem_usgs_utm, filename = "GRSM_DEM_USGS_UTM.tif", 
+            format = "GTiff",
+            overwrite = T,
+            NAflag = -9999)
+
+```
 
 
