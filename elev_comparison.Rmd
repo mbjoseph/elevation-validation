@@ -1,0 +1,57 @@
+---
+title: "Comparison of USGS and NEON elevation data"
+author: "Nate Looker"
+date: "June 22, 2016"
+output: html_document
+---
+
+## Load libraries and define path to GRSM data
+
+```{r load-lib, message=FALSE}
+
+library(raster)
+library(rgdal)
+library(maptools)
+
+direc <- "/media/look/AOP-NEON1-4/D07/GRSM/2015/"
+f_usgs <- "../NEONdata/GRSM_DEM_USGS/grdn36w084_13/w001001.adf"  
+```
+
+```{r}
+
+grsm_kml <- getKMLcoordinates(kmlfile=paste(direc, "GRSM_L1/GRSM_Lidar/BoundaryKMLs/full_boundary.kml", sep=""), ignoreAltitude=T)
+
+```
+
+
+## Read in USGS elevation data for GRSM site
+
+```{r read-usgs-dem}
+
+dem_usgs <- raster(f_usgs)
+
+```
+
+## Read in site spatial extent data (converted from kml using GDAL in bash)
+
+ogr2ogr -f 'ESRI Shapefile' ~/Documents/data/NEONDI-2016/NEONdata/D07_Lidar_Val/grsm.shp /media/look/AOP-NEON1-4/D07/GRSM/2015/GRSM_L1/GRSM_Lidar/BoundaryKMLs/full_boundary.kml
+
+
+```{r read-boundary-shp}
+
+grsm_boundary <- shapefile("~/Documents/data/NEONDI-2016/NEONdata/D07_Lidar_Val/grsm.shp", stringsAsFactors=F)
+
+plot(dem_usgs)
+plot(grsm_boundary, col=2, add=T)
+```
+
+## Mask USGS DEM by NEON site extent
+
+```{r mask-dem}
+
+
+
+```
+
+
+
