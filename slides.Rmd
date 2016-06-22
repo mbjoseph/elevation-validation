@@ -1,0 +1,94 @@
+---
+title: "DTM truths and lies"
+author: "Max Joseph"
+date: "June 22, 2016"
+output: beamer_presentation
+---
+
+## Question
+
+How do ground truthed elevations compare to L3 DEMs?
+
+![](https://upload.wikimedia.org/wikipedia/commons/7/78/Lecontefromsb1.jpg)
+
+## Approach
+
+1. Find out which of the $\approx$ 500 DTMs contain ground truth points
+
+2. Extract nominal DTM elevations to ground truthed values
+
+[https://github.com/mbjoseph/elevation-validation](https://github.com/mbjoseph/elevation-validation)
+
+## Finding extents of each DTM
+
+[R/check_ground_measurements.R](https://github.com/mbjoseph/elevation-validation/blob/master/R/check_ground_measurements.R)
+
+```{r load-helpers, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(raster)
+library(ggplot2)
+library(ggthemes)
+source('R/check_ground_measurements.R')
+```
+
+```{r}
+dtm_dir <- get_dtm_dir()
+dtm_files <- find_dtm_files(dtm_dir)
+full_dtm_paths <- file.path(dtm_dir, dtm_files)
+extents <- lapply(full_dtm_paths, get_extent)
+```
+
+## Getting the ground truth data
+
+```{r}
+truth <- read.csv('data/GRSM_LiDAR_Val_ITRF00_Geoid12A_UTM17N.csv')
+coords <- cbind(truth$Easting, truth$Northing)
+sp <- SpatialPoints(coords,
+                    proj4string = raster(full_dtm_paths[1]) %>% crs)
+spdf <- SpatialPointsDataFrame(sp, truth)
+```
+
+## Finding which DTMs contain ground truth data
+
+```{r}
+relevant <- lapply(extents,
+                   FUN = points_in_extent,
+                   x = truth$Easting,
+                   y = truth$Northing) %>%
+  unlist()
+
+relevant_dtms <- full_dtm_paths[relevant]
+```
+
+## Extracting values from relevant DTMs
+
+```{r, warning=FALSE}
+spdf$dtm_val <- get_dtm_values(relevant_dtms, spdf)
+```
+
+## Visualize congruence
+
+```{r, warning=FALSE, echo = FALSE, fig.width = 6, fig.height = 5}
+spdf %>%
+  data.frame() %>%
+  ggplot(aes(x = Elevation, y = dtm_val)) +
+  geom_point(size = 3) +
+  geom_abline(intercept = 0, slope = 1) +
+  xlab('Ground truth elevation') + 
+  ylab('DTM elevation') + 
+  theme_excel()
+```
+
+## Distribution of errors
+
+```{r, warning = FALSE, echo = FALSE, message=FALSE, fig.width = 6, fig.height = 5}
+spdf$diff <- spdf$Elevation - spdf$dtm_val
+
+spdf %>%
+  data.frame() %>% 
+  ggplot(aes(x = diff)) + 
+  geom_histogram(fill = 'yellow', color = 'black') + 
+  xlab('Elevation difference: ground truth - DTM') + 
+  ylab('Count') + 
+  theme_excel()
+```
